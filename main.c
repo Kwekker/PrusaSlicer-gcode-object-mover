@@ -7,8 +7,9 @@
 
 #include "objectMove.h"
 
-void printHelp(void);
 uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects);
+void printHelp(void);
+void printObjects(objectSettings_t* objects, uint16_t objectCount);
 
 int main(int argc, char *argv[]) {
     setbuf(stdout, NULL);
@@ -21,15 +22,6 @@ int main(int argc, char *argv[]) {
     objectSettings_t* objects = 0;
     uint16_t objectCount = handleInput(argc, argv, &objects);
     if(objectCount == 0) return 1;
-
-    for(uint8_t i = 0; i < objectCount; i++) {
-        objectSettings_t* o = objects + i;
-        printf("name: %s\nno color c: %d\naxis count: %d\n", o->name, o->noColorChange, o->axisAmount);
-        for(uint8_t j = 0; j < o->axisAmount; j++) {
-            printf("\tchar: %c\n\toffset: %d\n", o->axes[j].identifier, o->axes[j].offset);
-        }
-        printf("\n");
-    }
     
     moveObjects(argv[1], objects, objectCount);
 
@@ -109,4 +101,16 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects) {
 
 void printHelp(void) {
     printf("TODO: Write the help thing hehe\n");
+}
+
+
+void printObjects(objectSettings_t* objects, uint16_t objectCount) {
+    for(uint8_t i = 0; i < objectCount; i++) {
+        objectSettings_t* o = objects + i;
+        printf("name: %s\nno color c: %d\naxis count: %d\n", o->name, o->noColorChange, o->axisAmount);
+        for(uint8_t j = 0; j < o->axisAmount; j++) {
+            printf("\tchar: %c\n\toffset: %d\n", o->axes[j].identifier, o->axes[j].offset);
+        }
+        printf("\n");
+    }
 }
