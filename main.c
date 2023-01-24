@@ -71,9 +71,9 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects) {
                         return 0;
                     }
 
-                    currentObject->axes[currentObject->axisAmount].identifier = argv[i][2];
-                    currentObject->axes[currentObject->axisAmount].offset = atoi(argv[i + 1]);
-                    currentObject->axisAmount++;
+                    currentObject->axes[currentObject->axisCount].identifier = argv[i][2];
+                    currentObject->axes[currentObject->axisCount].offset = atoi(argv[i + 1]);
+                    currentObject->axisCount++;
                     i++;
                     break;
 
@@ -110,8 +110,8 @@ void printHelp(void) {
 void printObjects(objectSettings_t* objects, uint16_t objectCount) {
     for(uint8_t i = 0; i < objectCount; i++) {
         objectSettings_t* o = objects + i;
-        printf("name: %s\nno color c: %d\naxis count: %d\n", o->name, o->noColorChange, o->axisAmount);
-        for(uint8_t j = 0; j < o->axisAmount; j++) {
+        printf("name: %s\nno color c: %d\naxis count: %d\n", o->name, o->noColorChange, o->axisCount);
+        for(uint8_t j = 0; j < o->axisCount; j++) {
             printf("\tchar: %c\n\toffset: %d\n", o->axes[j].identifier, o->axes[j].offset);
         }
         printf("\n");

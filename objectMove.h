@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define MAX_AXES 5
+#define MAX_AXES 6
 
 typedef struct {
     char identifier;
@@ -12,7 +12,7 @@ typedef struct {
 
 typedef struct {
     axis_t axes[MAX_AXES];
-    uint8_t axisAmount;
+    uint8_t axisCount;
     char* name;
     uint8_t noColorChange;
 } objectSettings_t;

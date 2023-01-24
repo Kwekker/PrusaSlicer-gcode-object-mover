@@ -1,3 +1,4 @@
 .vscode/
 *.gcode
 main
+test/
