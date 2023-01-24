@@ -52,9 +52,12 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects) {
                         return 0;
                     }
 
-                    //No need to copy it somewhere if it's already stored in argv
                     currentObject++;
-                    currentObject->name = argv[i + 1];
+
+                    char* storeName = (char*)malloc(2 + strlen(argv[i + 1]));
+                    sprintf(storeName, "%s ", argv[i + 1]);
+                    currentObject->name = storeName;
+                    
                     i++;
                     break;
                 
