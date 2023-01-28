@@ -7,7 +7,7 @@
 
 #include "objectMove.h"
 
-uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects);
+uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** outFileName);
 void printHelp(void);
 void printObjects(objectSettings_t* objects, uint16_t objectCount);
 
@@ -19,16 +19,19 @@ int main(int argc, char *argv[]) {
         printHelp();
     }
 
+    char* outFileName = NULL;
     objectSettings_t* objects = 0;
-    uint16_t objectCount = handleInput(argc, argv, &objects);
+    uint16_t objectCount = handleInput(argc, argv, &objects, &outFileName);
     if(objectCount == 0) return 1;
     
-    moveObjects(argv[1], objects, objectCount);
+    if(moveObjects(argv[1], outFileName, objects, objectCount) == 0)
+        printf("Done :)\n");
 
     return 0;
 }
 
-uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects) {
+
+uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** outFileName) {
 
     // Count amount of objects and allocate the array
     uint16_t objectCount = 0;
@@ -80,7 +83,13 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects) {
                 case 'c':
                     currentObject->noColorChange = 1;
                     break;
+
+                case 'O':
+                    *outFileName = argv[i + 1];
+                    i++;
+                    break;
                 
+                case 'H':
                 case 'h':
                     printHelp();
                     break;
@@ -103,7 +112,15 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects) {
 }
 
 void printHelp(void) {
-    printf("TODO: Write the help thing hehe\n");
+    printf("\nUsage:\n");
+    printf("The first argument should be the input file name. A better more detailed explanation can be found on git:\n");
+    printf("https://github.com/kwekker/gcode-prusaslicer-object-mover\n");
+    printf("-H\t\tShow help\n");
+    printf("-O <filename>\tWrite an output file with name <filename> instead of overwriting the input file.\n");
+    printf("-N <name>\tAll consecutive lowercase flags will be about the object named <name>.\n");
+    printf("-a<I> <offset>\tSet the offset of an axis. <I> is the axis name (like 'X'), <offset> is an offset integer.\n");
+    printf("-c\t\tNo filament change will be inserted before the object (so just don't use this flag if you want a filament change).\n");
+    printf("\n");
 }
 
 

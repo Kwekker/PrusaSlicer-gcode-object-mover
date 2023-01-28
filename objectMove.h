@@ -17,7 +17,7 @@ typedef struct {
     uint8_t noColorChange;
 } objectSettings_t;
 
-uint8_t moveObjects(char* fileName, objectSettings_t* objects, uint16_t objectCount);
+uint8_t moveObjects(char* inFileName, char* outFileName, objectSettings_t* objects, uint16_t objectCount);
 
 //TODO: Voer de kat
 

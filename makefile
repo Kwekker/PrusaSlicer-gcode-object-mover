@@ -1,5 +1,5 @@
 all:
-	gcc -o main *.c -Wall
+	gcc -o objectmover *.c -Wall
 
 clean:
 	rm -f $(OBJS) $(OUT)

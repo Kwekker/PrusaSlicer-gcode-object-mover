@@ -13,11 +13,19 @@ static uint8_t moveObject(FILE* inFile, FILE* outFile, objectSettings_t object);
 static char* moveLine(char buffer[GCODE_LINE_BUFFER_SIZE], objectSettings_t object);
 static int8_t findAxisIndex(objectSettings_t object, char c);
 
-uint8_t moveObjects(char* fileName, objectSettings_t* objects, uint16_t objectCount) {
+uint8_t moveObjects(char* inFileName, char* outFileName, objectSettings_t* objects, uint16_t objectCount) {
 
-    FILE* inFile = fopen(fileName, "r+");
-    // FILE* outFile = tmpfile();
-    FILE* outFile = fopen("outFile", "w");
+    FILE* inFile = fopen(inFileName, "r+");
+    FILE* outFile;
+    if(outFileName != NULL) {
+        outFile = fopen(outFileName, "w");
+        if(outFile == NULL) {
+            printf("Couldn't create the specified output file :(\n");
+            return -1;
+        }
+        printf("Writing to file %s\n", outFileName);
+    }
+    else outFile = tmpfile();
 
     char* names[objectCount];
 
@@ -36,6 +44,16 @@ uint8_t moveObjects(char* fileName, objectSettings_t* objects, uint16_t objectCo
             fclose(outFile);
             return 1;
         }
+        printf("Moving object %s\n", objects[foundObjectIndex].name);
+        moveObject(inFile, outFile, objects[foundObjectIndex]);
+    }
+
+    if(outFileName == NULL) {
+        printf("Overwriting input file %s\n", inFileName);
+        fseek(inFile, 0, SEEK_SET);
+        fseek(outFile, 0, SEEK_SET);
+        // A nice oneliner to copy a file
+        while(fputc(fgetc(outFile), inFile) != 0);
     }
     
     fclose(inFile);
@@ -65,7 +83,7 @@ static int16_t findNextObject(FILE* inFile, FILE* outFile, char* names[], uint16
         char* objectInFileName = buffer + 18;
         for (uint16_t i = 0; i < objectCount; i++) {
             if (names[i] != NULL && strncmp(objectInFileName, names[i], strlen(names[i])) == 0) {
-                printf("Found object %s.\n", names[i]);
+                printf("Found object %s\n", names[i]);
                 names[i] = NULL;
                 return 0;
             }
@@ -85,14 +103,16 @@ static uint8_t moveObject(FILE* inFile, FILE* outFile, objectSettings_t object) 
     while(fgets(buffer, GCODE_LINE_BUFFER_SIZE, inFile) != NULL) {
         // Check if it's the beginning of the next object.
         if(!strncmp(buffer, "; printing object ", 18) && strncmp(buffer + 18, object.name, strlen(object.name))) {
+            printf("End of object %s\n", object.name);
             return 0;
         }
 
         // Using a function is dumb when you're only checking 2 chars.
         // Checking for both G1 and G0 even though I'm pretty sure PrusaSlicer doesn't use G0.
         if(buffer[0] == 'G' && (buffer[1] == '1' || buffer[1] == '0')) { 
+            char* putInFile = moveLine(buffer, object);
             // Make the changes
-            moveLine(buffer, object);
+            fputs(putInFile, outFile);
         }
     }
 
@@ -113,18 +133,29 @@ static char* moveLine(char inBuffer[GCODE_LINE_BUFFER_SIZE], objectSettings_t ob
 
         // Copy the line until an axis is found that has to be moved.
         // Using short circuiting because I'm a nerd who likes to optimize things.
-        while(!isalpha(*inPtr) || -1 == (axisIndex = findAxisIndex(object, *inPtr))) 
+        while(!isalpha(*inPtr) || -1 == (axisIndex = findAxisIndex(object, *inPtr))) {
             *(outPtr++) = *(inPtr++);
+        }
 
         // One more time to get the identifier out of the way
         *(outPtr++) = *(inPtr++);
 
+        // If the character after the initial axis identifying character isn't a number,
+        // you're probably looking at a comment instead of an axis.
+        // We don't want to change any comments, and comments are at the end of the line, so we break.
+        if(!isnumber(*inPtr)) break;
+
         // Idk how big your printer is, maybe it is 2.15Mm long who knows
         int32_t newNum = atoi(inPtr) + object.axes[axisIndex].offset;
-        outPtr += sprintf(outPtr, "%d", newNum);
-        inPtr = strpbrk(inPtr, ". \n");     
+        outPtr += sprintf(outPtr, "%d", newNum); 
+
+        // Make sure to skip the number in the input (before the decimal point)
+        while(isnumber(*inPtr)) inPtr++;
     }
-    
+
+    //Copy the remaining part of the line
+    strcpy(outPtr, inPtr);
+
     return outBuffer;
 }
 
