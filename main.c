@@ -41,6 +41,9 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** o
     }
     *objects = (objectSettings_t*) calloc(objectCount, sizeof(objectSettings_t));
 
+    // This is disabled by either the -O or the -F flag
+    uint8_t askOverwriteConfirm = 1;
+
     // Go through the arguments and save them
     objectSettings_t* currentObject = *objects - 1;
     // -1 because the N option goes to the next object before doing anything.
@@ -88,6 +91,10 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** o
                     *outFileName = argv[i + 1];
                     i++;
                     break;
+
+                case 'F':
+                    askOverwriteConfirm = 0;
+                    break;
                 
                 case 'H':
                 case 'h':
@@ -107,6 +114,15 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** o
         }
     }
 
+    if(*outFileName == NULL && askOverwriteConfirm) {
+        printf("Overwrite the input file? (y/n) ");
+        if(getchar() != 'y') {
+            printf("\nThe file will not be overwritten.\n");
+            printf("If you want to instead write to a new file, run the program with -O <filename>.\n");
+            return 0;
+        }
+    }
+
     if(objectCount == 0) printf("No objects were specified.\n");
     return objectCount;
 }
@@ -114,9 +130,10 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** o
 void printHelp(void) {
     printf("\nUsage:\n");
     printf("The first argument should be the input file name. A better more detailed explanation can be found on git:\n");
-    printf("https://github.com/kwekker/gcode-prusaslicer-object-mover\n");
+    printf("https://github.com/Kwekker/PrusaSlicer-gcode-object-mover\n");
     printf("-H\t\tShow help\n");
     printf("-O <filename>\tWrite an output file with name <filename> instead of overwriting the input file.\n");
+    printf("-F\t\tOverwrite the current file without asking for confirmation.\n");
     printf("-N <name>\tAll consecutive lowercase flags will be about the object named <name>.\n");
     printf("-a<I> <offset>\tSet the offset of an axis. <I> is the axis name (like 'X'), <offset> is an offset integer.\n");
     printf("-c\t\tNo filament change will be inserted before the object (so just don't use this flag if you want a filament change).\n");

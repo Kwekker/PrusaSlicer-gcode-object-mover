@@ -46,14 +46,22 @@ uint8_t moveObjects(char* inFileName, char* outFileName, objectSettings_t* objec
         }
         printf("Moving object %s\n", objects[foundObjectIndex].name);
         moveObject(inFile, outFile, objects[foundObjectIndex]);
+        printf("Finished moving object.\n");
     }
+
+    fputs("; Edited by the PrusaSlicer gcode object mover.\n; https://github.com/Kwekker/PrusaSlicer-gcode-object-mover", outFile);
 
     if (outFileName == NULL) {
         printf("Overwriting input file %s\n", inFileName);
         fseek(inFile, 0, SEEK_SET);
         fseek(outFile, 0, SEEK_SET);
-        // A nice oneliner to copy a file
-        while (fputc(fgetc(outFile), inFile) != 0);
+
+        // Overwrite the file
+        char copy;
+        do {
+            copy = fgetc(outFile);
+            fputc(copy, inFile);
+        } while(copy != EOF);
     }
     
     fclose(inFile);
@@ -102,9 +110,9 @@ static uint8_t moveObject(FILE* inFile, FILE* outFile, objectSettings_t object) 
     // A color list for the different colors objects can be
     // This is literally just for the preview in the PrusaSlicer gcode viewer, it has no other use.
     static const char colors[7][7] = {"0000FF", "00FF00", "00FFFF", "FF0000", "FF00FF", "FFFF00", "FFFFFF"};
-    
+     
     if (!object.noColorChange) {
-        char* colorChangeString = ";COLOR_CHANGE,T0,#XXXXXX\nM600\n";
+        char colorChangeString[] = ";COLOR_CHANGE,T0,#XXXXXX\nM600\n";
         static uint8_t currentColor = 0;
         memcpy(colorChangeString + 18, colors[currentColor++], 6);
         if(currentColor > 7) currentColor = 0;
@@ -128,7 +136,7 @@ static uint8_t moveObject(FILE* inFile, FILE* outFile, objectSettings_t object) 
             // Make the changes
             fputs(putInFile, outFile);
         }
-        else fputs(buffer, outFile);
+        else fputs(buffer, outFile); // If it isn't a G1/G0, just copy the line.
     }
 
     return 0;
