@@ -19,6 +19,7 @@ The program can be run as follows:
 ```html
 ./objectmover <file> <options>
 ```
+
 Where:
 - `<file>` is the path to your gcode file
 - `<options>` see next chapter
@@ -51,3 +52,6 @@ Broken down into a list:
         -aY -40     # Move 'otherText' -40mm along the Y axis
         -c          # Don't change filaments before printing this object
 ```
+
+## Purpose
+I made this program because I wanted to print objects in multiple colors with my Prusa MINI, with as few filament changes as possible. I was doing this by just printing the first part first, and then printing the other part over it. This was pretty limiting and required me to start a new print for every extra color I added. So I went looking for a better solution. I could either see if someone else had already solved this problem before me, or spend hours thinking of and making one myself. I decided on the latter, the result of which you are now looking at right now.
