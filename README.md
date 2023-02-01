@@ -26,5 +26,28 @@ Where:
 
 ## Options
 Specifying an object's offset can be done by using the following flags. The program reads them in order. When you use a `-N`, all (lowercase) flags after it will be about that object. Using a `-N` again will start the specifications of the next object.
+- `-O <filename>`: Specify the output file. If you don't use this flag, the input file will be overwritten.
+- `-F`: Force the program to overwrite the file without asking for confirmation.
 - `-N <name>`: The object's name in prusaslicer
-- `-aI <offset>`: One of the axes you want to move. I is the axis' 
+- `-a<I> <offset>`: One of the axes you want to move. I is the axis' identifying character (case sensitive). Moving the object 25mm along the X axis would be -aX 25. Supports negative values.
+- `-c`: Don't change colors(filament) before printing this object .
+
+### Example
+    
+```bash
+./objectMover print.gcode -O moved.gcode -N text -aX -40 -aY 30 -N otherText -aX 50 -aY -30 -c
+```
+Broken down into a list:
+```bash
+./objectMover print.gcode
+    -O moved.gcode  # Write the output to a file named 'moved.gcode'
+
+    -N text         # Start specifying object 'text'
+        -aX -40     # Move object 'text' -40mm along the X axis
+        -aY 30      # Move object 'text 30mm along the Y axis
+
+    -N otherText    # Start specifying object 'otherText'
+        -aX 50      # Move 'otherText' 50mm along the X axis
+        -aY -40     # Move 'otherText' -40mm along the Y axis
+        -c          # Don't change filaments before printing this object
+```
