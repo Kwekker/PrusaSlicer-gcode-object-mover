@@ -9,7 +9,12 @@
 
 #define GCODE_LINE_BUFFER_SIZE 256
 
-//TODO: Remove the skirt if it's there because that shit is going to go wrong one of these days
+//TODO: Adjust Z-Hop for individual objects.
+//      Z-Hop is the G1 that always comes 2 lines after ;WIPE_END. Every ;WIPE_END has a Z-hop.
+//      Be careful though, it might not be with different settings.
+//      It seems to always have F720 behind it, but again,
+//      that might be different with different fan settings.
+//      Just find the first G1 after a ;WIPE_END that only has Z and F and you're good I think.
 
 static int16_t findNextObject(FILE* inFile, FILE* outFile, char* names[], uint16_t objectCount);
 static char* moveObject(FILE* inFile, FILE* outFile, objectSettings_t object);
@@ -22,7 +27,7 @@ uint8_t moveObjects(char* inFileName, char* outFileName, uint8_t forceFile, obje
 
     if (outFileName != NULL) {
         if(access(outFileName, F_OK) == 0 && forceFile == 0) {
-            printf("File %s already exists. Overwrite it? (y/n)");
+            printf("File %s already exists. Overwrite it? (y/n) ", outFileName);
             if(getchar() != 'y') {
                 printf("\nThe file will not be overwritten.\n");
                 return 0;
