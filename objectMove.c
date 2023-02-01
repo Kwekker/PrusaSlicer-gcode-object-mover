@@ -146,6 +146,14 @@ static char* moveObject(FILE* inFile, FILE* outFile, objectSettings_t object) {
             return buffer + 18; // Return the new object's name
         }
 
+        static uint8_t gaveSkirtWarning = 0;
+        if(!strncmp(buffer, ";TYPE:Skirt", 11) && gaveSkirtWarning == 0) {
+            // Make the warning yellow because it cool hehe
+            printf("\e[33mWarning: skirt detected. It is advized not to use a skirt when using this program,\n");
+            printf("as it can overlap with the moved object.\e[0m\n");
+            gaveSkirtWarning = 1;
+        }
+
         // Using a function is dumb when you're only checking 2 chars.
         // Checking for both G1 and G0 even though I'm pretty sure PrusaSlicer doesn't use G0.
         if (buffer[0] == 'G' && (buffer[1] == '1' || buffer[1] == '0')) { 
