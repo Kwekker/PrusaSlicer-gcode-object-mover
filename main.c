@@ -7,7 +7,7 @@
 
 #include "objectMove.h"
 
-uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** outFileName);
+uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** outFileName, uint8_t* forceFile);
 void printHelp(void);
 void printObjects(objectSettings_t* objects, uint16_t objectCount);
 
@@ -21,17 +21,19 @@ int main(int argc, char *argv[]) {
 
     char* outFileName = NULL;
     objectSettings_t* objects = 0;
-    uint16_t objectCount = handleInput(argc, argv, &objects, &outFileName);
+    uint8_t forceFile = 0;
+
+    uint16_t objectCount = handleInput(argc, argv, &objects, &outFileName, &forceFile);
     if(objectCount == 0) return 1;
     
-    if(moveObjects(argv[1], outFileName, objects, objectCount) == 0)
+    if(moveObjects(argv[1], outFileName, forceFile, objects, objectCount) == 0)
         printf("Done :)\n");
 
     return 0;
 }
 
 
-uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** outFileName) {
+uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** outFileName, uint8_t* forceFile) {
 
     // Count amount of objects and allocate the array
     uint16_t objectCount = 0;
@@ -40,9 +42,6 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** o
             objectCount++;
     }
     *objects = (objectSettings_t*) calloc(objectCount, sizeof(objectSettings_t));
-
-    // This is disabled by either the -O or the -F flag
-    uint8_t askOverwriteConfirm = 1;
 
     // Go through the arguments and save them
     objectSettings_t* currentObject = *objects - 1;
@@ -93,7 +92,7 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** o
                     break;
 
                 case 'F':
-                    askOverwriteConfirm = 0;
+                    *forceFile = 1;
                     break;
                 
                 case 'H':
@@ -110,15 +109,6 @@ uint8_t handleInput(int argc, char* argv[], objectSettings_t** objects, char** o
             printf("%s is not a valid option.\n", argv[i]);
 
             printHelp();
-            return 0;
-        }
-    }
-
-    if(*outFileName == NULL && askOverwriteConfirm) {
-        printf("Overwrite the input file? (y/n) ");
-        if(getchar() != 'y') {
-            printf("\nThe file will not be overwritten.\n");
-            printf("If you want to instead write to a new file, run the program with -O <filename>.\n");
             return 0;
         }
     }

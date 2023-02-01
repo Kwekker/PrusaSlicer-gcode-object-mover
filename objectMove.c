@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -15,11 +16,19 @@ static char* moveObject(FILE* inFile, FILE* outFile, objectSettings_t object);
 static char* moveLine(char buffer[GCODE_LINE_BUFFER_SIZE], objectSettings_t object);
 static int8_t findAxisIndex(objectSettings_t object, char c);
 
-uint8_t moveObjects(char* inFileName, char* outFileName, objectSettings_t* objects, uint16_t objectCount) {
+uint8_t moveObjects(char* inFileName, char* outFileName, uint8_t forceFile, objectSettings_t* objects, uint16_t objectCount) {
 
-    FILE* inFile = fopen(inFileName, "r+");
     FILE* outFile;
+
     if (outFileName != NULL) {
+        if(access(outFileName, F_OK) == 0 && forceFile == 0) {
+            printf("File %s already exists. Overwrite it? (y/n)");
+            if(getchar() != 'y') {
+                printf("\nThe file will not be overwritten.\n");
+                return 0;
+            }
+        }
+
         outFile = fopen(outFileName, "w");
         if (outFile == NULL) {
             printf("Couldn't create the specified output file :(\n");
@@ -27,7 +36,21 @@ uint8_t moveObjects(char* inFileName, char* outFileName, objectSettings_t* objec
         }
         printf("Writing to file %s\n", outFileName);
     }
-    else outFile = tmpfile();
+    else {
+        if(!forceFile) {
+            printf("Overwrite the input file? (y/n) ");
+            if(getchar() != 'y') {
+                printf("\nThe file will not be overwritten.\n");
+                printf("If you want to instead write to a new file, run the program with -O <filename>.\n");
+                return 0;
+            }
+        }
+
+        outFile = tmpfile();
+    }
+
+    // Only initialize the inFile if you're sure the outFile has been initialized
+    FILE* inFile = fopen(inFileName, "r+");
 
 
     // Make an array of the names of the objects to make it easier to compare them
