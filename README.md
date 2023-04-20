@@ -30,7 +30,7 @@ Specifying an object's offset can be done by using the following flags. The prog
 - `-O <filename>`: Specify the output file. If you don't use this flag, the input file will be overwritten.
 - `-F`: Force the program to overwrite the file without asking for confirmation.
 - `-N <name>`: The object's name in prusaslicer
-- `-a<I> <offset>`: One of the axes you want to move. I is the axis' identifying character (case sensitive). Moving the object 25mm along the X axis would be -aX 25. Supports negative values.
+- `-a<I> <offset>`: One of the axes you want to move. I is the axis' identifying character (case sensitive). Moving the object 25mm along the X axis would be -aX 25. Supports negative values, **only** supports integers (whole millimeters).
 - `-c`: Don't change colors(filament) before printing this object .
 
 ### Example
