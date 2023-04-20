@@ -26,7 +26,7 @@ Where:
 
 
 ## Options
-Specifying an object's offset can be done by using the following flags. The program reads them in order. When you use a `-N`, all (lowercase) flags after it will be about that object. Using a `-N` again will start the specifications of the next object.
+Specifying an object's offset can be done by using the following flags. The program reads them in order. When you use a `-N`, all lowercase flags after it will be about that object. Using a `-N` again will start the specifications of the next object.
 - `-O <filename>`: Specify the output file. If you don't use this flag, the input file will be overwritten.
 - `-F`: Force the program to overwrite the file without asking for confirmation.
 - `-N <name>`: The object's name in prusaslicer
